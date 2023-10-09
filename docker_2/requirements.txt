@@ -1,0 +1,11 @@
+scikit-learn==1.2.2
+scipy==1.8
+seaborn==0.12.2
+pandas==2.0.3
+jupyter-client==8.1.0
+jupyter-core==5.3.0
+jupyter-events==0.6.3
+jupyter-server==2.5.0
+jupyter-server-terminals==0.4.4
+jupyterlab==3.5.2
+jupyterlab-pygments==0.2.2

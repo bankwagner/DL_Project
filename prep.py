@@ -100,7 +100,7 @@ def normalize(image):
     return numpy2nifti(image)
 
 # image and label
-def max_int_resize_and_normalize(numpy_img, label):
+def max_int_resize_and_normalize_(numpy_img, label):
     
     resized_norm_data, resized_norm_label = skt.resize(max_intenzity(nifti2numpy(numpy_img)), (216,256,10), order=1, preserve_range=False,anti_aliasing=True), skt.resize(max_intenzity(nifti2numpy(label)), (216,256,10), order=1, preserve_range=False,anti_aliasing=True)
     resized_norm_data, resized_norm_label = normalize(resized_norm_data), normalize(resized_norm_label)
@@ -238,9 +238,9 @@ if __name__ == "__main__":
 
     #Max intenzity,Resize and Normalize all images and ground truth images
     for i in range(len(patient_vols_train)):
-        patient_vols_train[i], patient_vols_train_gt[i] = max_int_resize_and_normalize(patient_vols_train[i], patient_vols_train_gt[i])
+        patient_vols_train[i], patient_vols_train_gt[i] = max_int_resize_and_normalize_(patient_vols_train[i], patient_vols_train_gt[i])
     for i in range(len(patient_vols_test)):
-        patient_vols_test[i], patient_vols_test_gt[i] = max_int_resize_and_normalize(patient_vols_test[i], patient_vols_test_gt[i])
+        patient_vols_test[i], patient_vols_test_gt[i] = max_int_resize_and_normalize_(patient_vols_test[i], patient_vols_test_gt[i])
     for i in range(len(patient_vols_train_4d)):
         patient_vols_train_4d[i] = max_int_resize_and_normalize(patient_vols_train_4d[i])
     for i in range(len(patient_vols_test_4d)):

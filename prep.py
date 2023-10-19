@@ -6,6 +6,7 @@ Importing the necessary libraries
 import dicom2nifti
 import nibabel as nib
 import nilearn as nil
+import nilearn.image as nili
 import scipy.ndimage as ndi
 import matplotlib.pyplot as plt
 import os
@@ -20,6 +21,11 @@ from sklearn.model_selection import train_test_split
 import torchio as tio
 import torch
 from torch.utils.data import DataLoader, TensorDataset
+
+os.environ["SM_FRAMEWORK"] = "tf.keras"
+import segmentation_models as sm
+BACKBONE = 'resnet34'
+preprocess_input = sm.get_preprocessing(BACKBONE)
 """
 Read the DICOM files and convert them to NIFTI format
 Global variables:
@@ -105,7 +111,7 @@ def max_int_resize_and_normalize_(numpy_img, label):
     resized_norm_data, resized_norm_label = skt.resize(max_intenzity(nifti2numpy(numpy_img)), (216,256,10), order=1, preserve_range=False,anti_aliasing=True), skt.resize(max_intenzity(nifti2numpy(label)), (216,256,10), order=1, preserve_range=False,anti_aliasing=True)
     resized_norm_data, resized_norm_label = normalize(resized_norm_data), normalize(resized_norm_label)
     
-    return numpy2nifti(resized_norm_data), numpy2nifti(resized_norm_label)
+    return resized_norm_data, resized_norm_label 
 
 # only image
 def max_int_resize_and_normalize(numpy_img):
@@ -113,7 +119,7 @@ def max_int_resize_and_normalize(numpy_img):
     resized_norm_data = skt.resize(max_intenzity(nifti2numpy(numpy_img)), (216,256,10), order=1, preserve_range=False,anti_aliasing=True)
     resized_norm_data = normalize(resized_norm_data)
     
-    return numpy2nifti(resized_norm_data)
+    return resized_norm_data
 
 
 
@@ -145,12 +151,13 @@ def rotation_z_with_affine(image,rotation_degree=90):
     affine_so_far = image.affine.dot(rotation_affine)
     return nib.Nifti1Image(image, affine=affine_so_far)
 
-def rotation_z(nifti_img,rotation_degree=90):
-    rotated_data = rotate(nifti_img.get_fdata(), rotation_degree, (0, 1), reshape=False)
+def rotation_z(nifti_img,rotation_degree):
+    img = nifti_img.get_fdata()
+    rotated_data = rotate(img, rotation_degree, (0, 1), reshape=False)
     return nib.Nifti1Image(rotated_data, original_affine)
 
-def smooth(nifti_img, sigma=1):
-    return nil.smooth_img(nifti_img, sigma=sigma)
+def smooth(nifti_img, fwhm):
+    return nili.smooth_img(nifti_img, fwhm=fwhm)
 
 # affine change
 def mirror_y_with_affine(numpy_img):
@@ -242,6 +249,7 @@ if __name__ == "__main__":
     for i in range(len(patient_vols_test)):
         patient_vols_test[i], patient_vols_test_gt[i] = max_int_resize_and_normalize_(patient_vols_test[i], patient_vols_test_gt[i])
     for i in range(len(patient_vols_train_4d)):
+        
         patient_vols_train_4d[i] = max_int_resize_and_normalize(patient_vols_train_4d[i])
     for i in range(len(patient_vols_test_4d)):
         patient_vols_test_4d[i] = max_int_resize_and_normalize(patient_vols_test_4d[i])
@@ -264,7 +272,7 @@ if __name__ == "__main__":
         augmented_gt_train.append(rotation_z(patient_vols_train_gt[i], 270))
         augmented_gt_train.append(mirror_y(patient_vols_train_gt[i]))
         augmented_gt_train.append(mirror_x(patient_vols_train_gt[i]))
-        augmented_gt_train.append(smooth(patient_vols_train[i]), 2)
+        augmented_gt_train.append(smooth(patient_vols_train[i], 2))
     
     # for the test images we make the same
     # 100*7 = 700 images for test 
@@ -290,14 +298,14 @@ if __name__ == "__main__":
     random_numbers = np.random.randint(200, 1200, size=70)
     
     for i in range(70):
-        augmented_img_train.append(smooth(augmented_img_train[i]))
-        augmented_gt_train.append(smooth(augmented_gt_train[i]))
+        augmented_img_train.append(smooth(augmented_img_train[i],2))
+        augmented_gt_train.append(smooth(augmented_gt_train[i],2))
      
     random_numbers = np.random.randint(100, 600, size=35)    
     
     for i in range(35):
-        augmented_img_test.append(smooth(augmented_img_test[i]))
-        augmented_gt_test.append(smooth(augmented_gt_test[i]))       
+        augmented_img_test.append(smooth(augmented_img_test[i],2))
+        augmented_gt_test.append(smooth(augmented_gt_test[i],2))       
         
 # Concatenate the lists
     X_train = patient_vols_train + augmented_img_train
@@ -306,8 +314,37 @@ if __name__ == "__main__":
     X_test = patient_vols_test + augmented_img_test
     y_test = patient_vols_test_gt + augmented_gt_test
 
-  
+    # convert list of nifti images to numpy array
+    X_train = np.array([nifti2numpy(img) for img in X_train])
+    y_train = np.array([nifti2numpy(img) for img in y_train])
+    X_test = np.array([nifti2numpy(img) for img in X_test])
+    y_test = np.array([nifti2numpy(img) for img in y_test])
+
+
+ 
+
+    
     #X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=1)  
-    train_loader = create_dataloader(X_train, y_train, batch_size=32)
+    #train_loader = create_dataloader(X_train, y_train, batch_size=32)
     #test_loader = test_dataloader(X_test,batch_size)
     print("ok")
+    
+"""   
+# define model
+    model = sm.Unet(BACKBONE, encoder_weights='imagenet')
+    model.compile(
+        'Adam',
+        loss=sm.losses.bce_jaccard_loss,
+        metrics=[sm.metrics.iou_score],
+    )
+    # fit model
+    # # if you use data generator use model.fit_generator(...) instead of model.fit(...)
+    # # more about `fit_generator` here: https://keras.io/models/sequential/#fit_generator
+    model.fit(
+        x=X_train,
+        y=y_train,
+        batch_size=16,
+        epochs=100,
+        validation_data=(X_test, y_test),
+    )
+    """

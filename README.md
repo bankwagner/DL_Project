@@ -12,7 +12,7 @@ In this project, you'll dive into the idea of using multiple models together, kn
 
 ### How to Run:
  1. if you can't find any of the following, you can download it from this link: https://drive.google.com/drive/folders/1EP5HSA__aVHqcikNAYlxRSWfL89ijlyR?usp=share_link
- 2. upload **base_model.ipynb** and **ACDC.zip** to Colab
+ 2. upload **base_model.ipynb** and **ACDC.zip** to Colab (ACDC.zip to the /content folder)
  3. after running the installs, follow the instructions provided in the 2nd cell (delete ".generic_utils" from the appropriate file, save it, and restart the runtime)
  4. run the cells
 

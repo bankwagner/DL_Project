@@ -1,7 +1,7 @@
 # Description
-  - This folder contains the file(prep.py) for the preprocessing and data augmentation.  
-  - You can download the ACDC dataset from here: https://humanheart-project.creatis.insa-lyon.fr/database/#collection/637218c173e9f0047faa00fb  
-  - Extract the file in this directory and run the prep.ipynb
+  - This folder contains the file(prep.ipynb) for the preprocessing and data augmentation.    
+  - Run the cells
+  - The results (.npy files) will saved in the base_model directory
 # Required file structure
 <pre> 
 data_preprocess/

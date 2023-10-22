@@ -3,7 +3,8 @@
   - You can download the ACDC dataset from here: https://humanheart-project.creatis.insa-lyon.fr/database/#collection/637218c173e9f0047faa00fb  
   - Extract the file in this directory and run the prep.ipynb
 # Required file structure
-  .
+"""
+.
 └── data_preprocess/
     └── ACDC/
         └── database/
@@ -18,3 +19,4 @@
                 │   ├── patien1001_frame01.nii
                 │   └── patient101_frame01_gt.nii
                 └── ...
+"""

@@ -4,7 +4,7 @@
   - Extract the file in this directory and run the prep.ipynb
 # Required file structure
 <pre> 
-└── data_preprocess/
+data_preprocess/
     └── ACDC/
         └── database/
             ├── training/

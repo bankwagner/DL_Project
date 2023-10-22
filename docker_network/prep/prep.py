@@ -1,14 +1,3 @@
-# prep.py
-# import argparse
-
-# def main():
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('--image', type=str, required=True)
-#     args = parser.parse_args()
-#     print(f"Preprocessing the image: {args.image}")
-
-# if __name__ == "__main__":
-#     main()
 """
 Importing the necessary libraries
 
@@ -23,7 +12,7 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 import pandas as pd
-
+import cv2
 from scipy.ndimage import rotate
 
 import skimage.transform as skt
@@ -32,6 +21,8 @@ from sklearn.model_selection import train_test_split
 import torchio as tio
 import torch
 from torch.utils.data import DataLoader, TensorDataset
+import tensorflow as tf
+
 
 os.environ["SM_FRAMEWORK"] = "tf.keras"
 import segmentation_models as sm
@@ -45,8 +36,7 @@ patient_vals_train      -> list of training values
 patient_vals_train_gt   -> list of training ground truth values
 patient_vals_test       -> list of testing values
 patient_vals_test_gt    -> list of testing ground truth values
-patient_vals_train_4d   -> list of training 4d values
-patient_vals_test_4d    -> list of testing 4d values
+
 
 """
 
@@ -54,15 +44,9 @@ patient_vols_train =[]
 patient_vols_train_gt =[]
 patient_vols_test =[]
 patient_vols_test_gt =[]
-patient_vols_train_4d =[] 
-patient_vols_test_4d =[] 
+
 
 original_affine = np.diag([-1, -1, 1, 1])
-
-augmented_img_train = []
-augmented_img_test = []
-augmented_gt_train = []
-augmented_gt_test = []
 
 
 def load_nifti_files():
@@ -72,9 +56,6 @@ def load_nifti_files():
                 patient_vols_train.append(nib.load(f'ACDC/database/training/patient{101-i:03}/patient{101-i:03}_frame{frame_num:02}.nii.gz'))
             if os.path.isfile(f'ACDC/database/training/patient{101-i:03}/patient{101-i:03}_frame{frame_num:02}_gt.nii.gz'):
                 patient_vols_train_gt.append(nib.load(f'ACDC/database/training/patient{101-i:03}/patient{101-i:03}_frame{frame_num:02}_gt.nii.gz'))
-
-        if(os.path.isfile(f'ACDC/database/training/patient{101-i:03}/patient{101-i:03}_4d.nii.gz')):     
-            patient_vols_train_4d.append(nib.load(f'ACDC/database/training/patient{101-i:03}/patient{101-i:03}_4d.nii.gz'))
         
         
     for i in range(101, 151):
@@ -84,9 +65,8 @@ def load_nifti_files():
             if os.path.isfile(f'ACDC/database/testing/patient{i}/patient{i}_frame{frame_num:02}_gt.nii.gz'):
                 patient_vols_test_gt.append(nib.load(f'ACDC/database/testing/patient{i}/patient{i}_frame{frame_num:02}_gt.nii.gz'))
 
-        if(os.path.isfile(f'ACDC/database/testing/patient{i}/patient{i}_4d.nii.gz')):     
-            patient_vols_test_4d.append(nib.load(f'ACDC/database/testing/patient{i}/patient{i}_4d.nii.gz'))
     return
+
 
 """
 Data Preprocessing
@@ -119,7 +99,7 @@ def normalize(image):
 # image and label
 def max_int_resize_and_normalize_(numpy_img, label):
     
-    resized_norm_data, resized_norm_label = skt.resize(max_intenzity(nifti2numpy(numpy_img)), (216,256,10), order=1, preserve_range=False,anti_aliasing=True), skt.resize(max_intenzity(nifti2numpy(label)), (216,256,10), order=1, preserve_range=False,anti_aliasing=True)
+    resized_norm_data, resized_norm_label = skt.resize(max_intenzity(nifti2numpy(numpy_img)), (256,256,10), order=1, preserve_range=False,anti_aliasing=True), skt.resize(max_intenzity(nifti2numpy(label)), (256,256,10), order=1, preserve_range=False,anti_aliasing=True)
     resized_norm_data, resized_norm_label = normalize(resized_norm_data), normalize(resized_norm_label)
     
     return resized_norm_data, resized_norm_label 
@@ -127,17 +107,10 @@ def max_int_resize_and_normalize_(numpy_img, label):
 # only image
 def max_int_resize_and_normalize(numpy_img):
     
-    resized_norm_data = skt.resize(max_intenzity(nifti2numpy(numpy_img)), (216,256,10), order=1, preserve_range=False,anti_aliasing=True)
+    resized_norm_data = skt.resize(max_intenzity(nifti2numpy(numpy_img)), (256,256,10), order=1, preserve_range=False,anti_aliasing=True)
     resized_norm_data = normalize(resized_norm_data)
     
     return resized_norm_data
-
-
-
-
-# Az átméretezett kép létrehozása
-#resized_image = nib.Nifti1Image(resized_data, affine=original_image.affine)
-
 
 
 """
@@ -189,21 +162,7 @@ def mirror_x(nifti_img):
     mirrored_data = np.flip(nifti2numpy(nifti_img), axis=1)
     return nib.Nifti1Image(mirrored_data, original_affine)
     
-"""
-store the augmented nifti images to the list
-"""
-def save_nifti_to_database(nifti_img, type):
-    if(type == "train"):
-        augmented_img_train.append(nifti_img)
-    if(type == "train_gt"):
-        augmented_gt_train.append(nifti_img)
-    if(type == "test"):
-        augmented_img_test.append(nifti_img)
-    elif(type == "test_gt"):
-        augmented_gt_test.append(nifti_img)
-    else:
-        print("Wrong type")
-    
+
 """
 dataset, dataloader
 
@@ -233,129 +192,146 @@ def eval(dataset, model):
         for inputs in dataset:
             outputs = model(inputs)
     return outputs
-
-
     
 """
 1. Read all the nifti images(train and test) and store them in lists
-2. Concatenation of lists
-3. Prepare the data for the network(reshape, normalize)
-4. Split the data to train, test and validation
+2. Prepare the data for the network(reshape, normalize)
+3. Split the data to train, test and validation
 4. Data augmentation 
-5. Save the augmented data to a list
-6. Train the network with the training datas(contains data augmentated images) in nifti format
+5. Save the normal and augmented data to npy files
 
-
-    https://colab.research.google.com/drive/112NTL8uJXzcMw4PQbUvMQN-WHlVwQS3i
 """
 
 if __name__ == "__main__":
-    
     #Load the nifti files into lists(nifti format)
     load_nifti_files()
 
-    #Max intenzity,Resize and Normalize all images and ground truth images
+        #Max intenzity,Resize and Normalize all images and ground truth images
     for i in range(len(patient_vols_train)):
         patient_vols_train[i], patient_vols_train_gt[i] = max_int_resize_and_normalize_(patient_vols_train[i], patient_vols_train_gt[i])
     for i in range(len(patient_vols_test)):
-        patient_vols_test[i], patient_vols_test_gt[i] = max_int_resize_and_normalize_(patient_vols_test[i], patient_vols_test_gt[i])
-    for i in range(len(patient_vols_train_4d)):
-        
-        patient_vols_train_4d[i] = max_int_resize_and_normalize(patient_vols_train_4d[i])
-    for i in range(len(patient_vols_test_4d)):
-        patient_vols_test_4d[i] = max_int_resize_and_normalize(patient_vols_test_4d[i])
-    
+        patient_vols_test[i], patient_vols_test_gt[i] = max_int_resize_and_normalize_(patient_vols_test[i], patient_vols_test_gt[i])  
+
     # Data augmentation
-    # rotate and mirror the images, then add random noise to random images
-    # every train image has 3 rotated,2 mirrored and 1 noisy version
-    # make the same with the ground truth images
-   
-    # 200*7 = 1400 images for train
-    for i in range(len(patient_vols_train)):
+        # rotate and mirror the images, then add random noise to random images
+        # every train image has 2 rotated,2 mirrored and 1 noisy version
+        # make the same with the ground truth images
+        # 25*5 = 125 
+    augmented_img_train = []
+    augmented_img_test = []
+    augmented_gt_train = []
+    augmented_gt_test = []
+    
+    np.random.seed(42)  
+    random_numbers = np.random.randint(0,200, size=25)
+
+    for j in range(0,25):
+        i=random_numbers[j]
         augmented_img_train.append(rotation_z(patient_vols_train[i], 90))
-        augmented_img_train.append(rotation_z(patient_vols_train[i], 180))
         augmented_img_train.append(rotation_z(patient_vols_train[i], 270))
         augmented_img_train.append(mirror_y(patient_vols_train[i]))
         augmented_img_train.append(mirror_x(patient_vols_train[i]))
         augmented_img_train.append(smooth(patient_vols_train[i], 2))
         augmented_gt_train.append(rotation_z(patient_vols_train_gt[i], 90))
-        augmented_gt_train.append(rotation_z(patient_vols_train_gt[i], 180))
         augmented_gt_train.append(rotation_z(patient_vols_train_gt[i], 270))
         augmented_gt_train.append(mirror_y(patient_vols_train_gt[i]))
         augmented_gt_train.append(mirror_x(patient_vols_train_gt[i]))
         augmented_gt_train.append(smooth(patient_vols_train[i], 2))
-    
-    # for the test images we make the same
-    # 100*7 = 700 images for test 
-    for i in range(len(patient_vols_test)):   
+        
+        # for the test images we make the same
+        # 10*5 
+    random_numbers = np.random.randint(0,100, size=10)
+    for j in range(0,10):  
+        i=random_numbers[j] 
         augmented_img_test.append(rotation_z(patient_vols_test[i], 90))
-        augmented_img_test.append(rotation_z(patient_vols_test[i], 180))
         augmented_img_test.append(rotation_z(patient_vols_test[i], 270))
         augmented_img_test.append(mirror_y(patient_vols_test[i]))
         augmented_img_test.append(mirror_x(patient_vols_test[i]))
         augmented_img_test.append(smooth(patient_vols_test[i],2))
         augmented_gt_test.append(rotation_z(patient_vols_test_gt[i], 90))
-        augmented_gt_test.append(rotation_z(patient_vols_test_gt[i], 180))
         augmented_gt_test.append(rotation_z(patient_vols_test_gt[i], 270))
         augmented_gt_test.append(mirror_y(patient_vols_test_gt[i]))
         augmented_gt_test.append(mirror_x(patient_vols_test_gt[i]))
         augmented_gt_test.append(smooth(patient_vols_test_gt[i],2)) 
-      
-    # add random noise to random augmented images
-    # make random 70 train images and 35 test images noisy
-    # between 200 and 1200, because the first 200 images already have noisy sample(the last 200)
-    
-    np.random.seed(42)  # Beállítjuk a seed-et
-    random_numbers = np.random.randint(200, 1200, size=70)
-    
-    for i in range(70):
-        augmented_img_train.append(smooth(augmented_img_train[i],2))
-        augmented_gt_train.append(smooth(augmented_gt_train[i],2))
-     
-    random_numbers = np.random.randint(100, 600, size=35)    
-    
-    for i in range(35):
-        augmented_img_test.append(smooth(augmented_img_test[i],2))
-        augmented_gt_test.append(smooth(augmented_gt_test[i],2))       
         
-# Concatenate the lists
-    X_train = patient_vols_train + augmented_img_train
-    y_train = patient_vols_train_gt + augmented_gt_train
-    
-    X_test = patient_vols_test + augmented_img_test
-    y_test = patient_vols_test_gt + augmented_gt_test
+    X_train = []
+    for img in patient_vols_train:
+        for i in range(1,img.shape[-1],2):
+            new_data = np.stack((img.get_fdata()[:,:,i],)*3, axis=-1).astype('float32')
+            X_train.append(new_data)
+            
+    X_train_aug = []
+    for img in augmented_img_train:
+        for i in range(1,img.shape[-1],2):
+            new_data = np.stack((img.get_fdata()[:,:,i],)*3, axis=-1).astype('float32')
+            X_train_aug.append(new_data)
+            
+        
+    Y_train = []
+    for img in patient_vols_train_gt:
+        for i in range(1,img.shape[-1],2):
+            new_data = img.get_fdata()[:,:,i].astype('float32')
+            Y_train.append(new_data)
+    Y_train_aug = []
+    for img in augmented_gt_train:
+        for i in range(1,img.shape[-1],2):
+            new_data = img.get_fdata()[:,:,i].astype('float32')
+            Y_train_aug.append(new_data)
+                
+    X_test = []
+    for img in patient_vols_test:
+        for i in range(1,img.shape[-1],2):
+            new_data = np.stack((img.get_fdata()[:,:,i],)*3, axis=-1).astype('float32')
+            X_test.append(new_data)
+    X_test_aug = []
+    for img in augmented_img_test:
+        for i in range(1,img.shape[-1],2):
+            new_data = np.stack((img.get_fdata()[:,:,i],)*3, axis=-1).astype('float32')
+            X_test_aug.append(new_data)
 
-    # convert list of nifti images to numpy array
-    X_train = np.array([nifti2numpy(img) for img in X_train])
-    y_train = np.array([nifti2numpy(img) for img in y_train])
-    X_test = np.array([nifti2numpy(img) for img in X_test])
-    y_test = np.array([nifti2numpy(img) for img in y_test])
+    y_test = []
+    for img in patient_vols_test_gt:
+        for i in range(1,img.shape[-1],2):
+            new_data = img.get_fdata()[:,:,i].astype('float32')
+            y_test.append(new_data)
+    y_test_aug = []   
+    for img in augmented_gt_test:
+        for i in range(1,img.shape[-1],2):
+            new_data = img.get_fdata()[:,:,i].astype('float32')
+            y_test_aug.append(new_data)     
+
+    X_train = np.array(X_train)
+    X_train_aug = np.array(X_train_aug)
+    Y_train = np.array(Y_train)
+    Y_train_aug = np.array(Y_train_aug)
+    X_test = np.array(X_test)
+    X_test_aug = np.array(X_test_aug)
+    y_test = np.array(y_test)
+    y_test_aug = np.array(y_test_aug)
 
 
- 
+    Y_train = np.expand_dims(Y_train, axis=3)
+    Y_train_aug = np.expand_dims(Y_train_aug, axis=3)
+    y_test = np.expand_dims(y_test, axis=3)
+    y_test_aug = np.expand_dims(y_test_aug, axis=3)
 
-    
-    #X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=1)  
-    #train_loader = create_dataloader(X_train, y_train, batch_size=32)
-    #test_loader = test_dataloader(X_test,batch_size)
-    print("ok")
-    
-"""   
-# define model
-    model = sm.Unet(BACKBONE, encoder_weights='imagenet')
-    model.compile(
-        'Adam',
-        loss=sm.losses.bce_jaccard_loss,
-        metrics=[sm.metrics.iou_score],
-    )
-    # fit model
-    # # if you use data generator use model.fit_generator(...) instead of model.fit(...)
-    # # more about `fit_generator` here: https://keras.io/models/sequential/#fit_generator
-    model.fit(
-        x=X_train,
-        y=y_train,
-        batch_size=16,
-        epochs=100,
-        validation_data=(X_test, y_test),
-    )
     """
+    X_train shape: (1000, 256, 256, 3)
+    X_train_aug shape: (625, 256, 256, 3)
+    y_train shape: (1000, 256, 256, 1)
+    y_train_aug shape: (625, 256, 256, 1)
+    X_test shape: (500, 256, 256, 3)
+    X_test_aug shape: (250, 256, 256, 3)
+    y_test shape: (500, 256, 256, 1)
+    y_test_aug shape: (250, 256, 256, 1)
+
+    """
+
+    np.save('X_train.npy', X_train)
+    np.save('Y_train.npy', Y_train)
+    np.save('X_train_aug.npy', X_train_aug)
+    np.save('Y_train_aug.npy', Y_train_aug)
+    np.save('X_test.npy', X_test)
+    np.save('y_test.npy', y_test)
+    np.save('X_test_aug.npy', X_test_aug)
+    np.save('y_test_aug.npy', y_test_aug)

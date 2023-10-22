@@ -1,0 +1,26 @@
+version: '3'
+services:
+  prep:
+    build: ./prep
+    command: python prep.py
+    volumes:
+      - image-volume:/prep
+    networks:
+      - my-network
+
+  model_1:
+    build: ./model_1
+    command: python model_1.py
+    depends_on:
+      - prep
+    volumes:
+      - image-volume:/prepped
+      - image-volume:/output
+    networks:
+      - my-network
+
+volumes:
+  image-volume:
+
+networks:
+  my-network:

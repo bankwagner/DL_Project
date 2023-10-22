@@ -1,0 +1,45 @@
+networks:
+  custom_network:
+    driver: bridge
+services:
+  load_prep:
+    image: dfhomework/load_prep
+    networks:
+      - custom_network
+
+  model_1:
+    image: dfhomework/model_1
+    networks:
+      - custom_network
+
+  model_2:
+    image: dfhomework/model_2
+    networks:
+      - custom_network
+
+  final:
+    image: dfhomework/final
+    networks:
+      - custom_network
+
+
+
+  srserver:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: smartlab:test_image_gpu
+    container_name: test_container_gpu
+    volumes:
+      - .:/home/custom_user/
+    ports:
+      - "8899:8888"
+      - "2299:22"
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: "nvidia"
+            capabilities: [ "gpu" ]
+            count: 1

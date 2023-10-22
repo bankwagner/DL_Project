@@ -2,8 +2,8 @@
 A BME Mélytanulás tárgyához kapcsolódó projekt feladat git oldala.
 
 ### Csapattagok:
- - Frecska Hajnalka (NEPTUN)
- - Hugauf Dániel Bálint (NEPTUN)
+ - Frecska Hajnalka (C1MTMR)
+ - Hugauf Dániel Bálint (F3G8I9)
  - Wágner Bánk (ANKNFJ)
 
 ### Project description:

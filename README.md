@@ -17,6 +17,7 @@ In this project, you'll dive into the idea of using multiple models together, kn
  3. after running the installs, follow the instructions provided in the 2nd cell (delete ".generic_utils" from the appropriate file, save it, and restart the runtime)
  4. download the **ACDC.zip** file (according to the 3rd cell), then unzip it (4th cell)
  5. run the cells, and keep paying attention to the comments for further guidance
+    
 **prep.ipynb**
  1. upload **prep.ipynb** to colab
  2. running the cells, it will download the dataset and extract files.

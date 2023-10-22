@@ -11,12 +11,17 @@ A BME Mélytanulás tárgyához kapcsolódó projekt feladat git oldala.
 In this project, you'll dive into the idea of using multiple models together, known as model ensembles, to make our deep-learning solutions more accurate. They are a reliable approach to improve the accuracy of a deep learning solution for the added cost of running multiple networks. Using ensembles is a trick that's widely used by the winners of AI competitions. The task of the students: explore approaches to model ensemble construction for semantic segmentation, select a dataset (preferentially cardiac MRI segmentation, but others also allowed), find an open-source segmentation solution as a baseline for the selected dataset, and test it. Train multiple models and construct an ensemble from them. Analyze the improvements, benefits, and added costs of using an ensemble.
 
 ### How to Run:
+**base_model.ipynb**
  1. if you can't find any of the following, you can download it from this link: https://drive.google.com/drive/folders/1EP5HSA__aVHqcikNAYlxRSWfL89ijlyR?usp=share_link
  2. upload **base_model.ipynb** to Colab
  3. after running the installs, follow the instructions provided in the 2nd cell (delete ".generic_utils" from the appropriate file, save it, and restart the runtime)
  4. download the **ACDC.zip** file (according to the 3rd cell), then unzip it (4th cell)
  5. run the cells, and keep paying attention to the comments for further guidance
-
+**prep.ipynb**
+ 1. upload **prep.ipynb** to colab
+ 2. running the cells, it will download the dataset and extract files.
+ 3. after the all cells runned, you will get all .npy files. These contain the preprocessed and augmented images and gt-s in numpy.array format
+ 4. We will use the files for teaching later
 
 ### File descriptions:
   1. **base_model.ipynb** -  contains the foundational model, providing a benchmark against which the subsequent results of the ensemble can be compared

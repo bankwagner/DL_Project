@@ -30,9 +30,9 @@ def max_intenzity(image):
 
 
 def normalize(image):
-    image = image.astype(np.float32)
-    image -= np.mean(image)
-    image /= np.std(image)
+    image = image.astype(np.uint8)
+    min_max = image.max() - image.min()
+    image = (image - image.min()) / min_max
     return numpy2nifti(image)
 
 
@@ -54,7 +54,17 @@ def max_int_resize_and_normalize_(numpy_img, label):
         resized_norm_label
     )
     return resized_norm_data, resized_norm_label
+def max_int_resize_and_normalize_no_label(numpy_img, label):
 
+    resized_norm_data = skt.resize(max_intenzity(nifti2numpy(numpy_img)),
+                                   (256,256,10), order=1, preserve_range=False,
+                                   anti_aliasing=True)
+    resized_norm_label = skt.resize(nifti2numpy(label),
+                                    (256,256,10), order=1, preserve_range=False,
+                                    anti_aliasing=True)
+    resized_norm_data, resized_norm_label = normalize(resized_norm_data), normalize(resized_norm_label)
+
+    return resized_norm_data, resized_norm_label
 
 def max_int_resize_and_normalize(numpy_img):
     resized_norm_data = skt.resize(
@@ -197,13 +207,9 @@ if __name__ == "__main__":
     load_nifti_files()
 
     for i in range(len(patient_vols_train)):
-        patient_vols_train[i], patient_vols_train_gt[i] = max_int_resize_and_normalize_(
-            patient_vols_train[i], patient_vols_train_gt[i]
-        )
+        patient_vols_train[i], patient_vols_train_gt[i] = max_int_resize_and_normalize_no_label(patient_vols_train[i], patient_vols_train_gt[i])
     for i in range(len(patient_vols_test)):
-        patient_vols_test[i], patient_vols_test_gt[i] = max_int_resize_and_normalize_(
-            patient_vols_test[i], patient_vols_test_gt[i]
-        )
+        patient_vols_test[i], patient_vols_test_gt[i] = max_int_resize_and_normalize_no_label(patient_vols_test[i], patient_vols_test_gt[i])  
 
     augmented_img_train = []
     augmented_img_test = []

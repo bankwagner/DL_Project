@@ -2,7 +2,7 @@ version: '3'
 services:
   prep:
     build: ./prep
-    command: python download.py && prep.py
+    command: python prep_v1.py
     volumes:
       - image-volume:/prep
     networks:

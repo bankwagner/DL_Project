@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.9.12
+FROM python:3.10
 
 # Set the working directory to /prep
 WORKDIR /prep
@@ -17,4 +17,4 @@ EXPOSE 80
 ENV NAME prep
 
 # Run prep.py when the container launches
-CMD ["python", "prep.py"]
+CMD ["./run.sh"]

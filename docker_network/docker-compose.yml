@@ -2,7 +2,7 @@ version: '3'
 services:
   prep:
     build: ./prep
-    command: python prep.py
+    command: python download.py && prep.py
     volumes:
       - image-volume:/prep
     networks:
@@ -12,7 +12,8 @@ services:
     build: ./model_1
     command: python model_1.py
     depends_on:
-      - prep
+      prep:
+        condition: service_completed_successfully
     volumes:
       - image-volume:/prepped
       - image-volume:/output

@@ -309,7 +309,7 @@ if __name__ == "__main__":
 
     y_test_aug = []
     for img in augmented_gt_test:
-        for i in range(1, img.shape[-1], 2):
+        for i in range(1, img.shape[-1], 2): 
             new_data = img.get_fdata()[:, :, i].astype("float32")
             y_test_aug.append(new_data)
 

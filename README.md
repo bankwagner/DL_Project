@@ -15,12 +15,15 @@ In this project, you'll dive into the idea of using multiple models together, kn
 ### How-to Run:
 
 #### Running the Pipeline:
-
+ 1. enter the folder docker_network
+ 2. in the command line give the command: **docker-compose up**
+ 3. it should create 2 images and the pipeline currently runs the test dataset and gives back the evaluation for that into a different file
 
 #### Running the Training:
-
-
-#### Running the Evaluation:
+ 1. enter the folder milestone 2
+ 2. the **X_model.ipynb** file contains the 4 models used for our ensemble
+ 3. the **X_files.zip** contains generated test results and the additional plots
+ 4. to run each model simply follow the instructions within the notebooks
 
 
 

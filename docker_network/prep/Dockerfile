@@ -17,4 +17,4 @@ EXPOSE 80
 ENV NAME prep
 
 # Run prep.py when the container launches
-CMD ["./run.sh"]
+CMD ["python", "prep_v1.py"]

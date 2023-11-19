@@ -1,6 +1,10 @@
 #Adatbázis
 ACDC/
 
+#Docker próbák
+docker_test/
+docker_2/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,24 +1,28 @@
 version: '3'
 services:
-  prep:
-    build: ./prep
-    command: python prep_v1.py
+  final:
+    build: ./milestone_3
+    #command: python prep_v1.py
+    ports:
+      - "7860:7860"
+    environment:
+      - TF_ENABLE_ONEDNN_OPTS=0
     volumes:
-      - image-volume:/prep
+      - image-volume:/final
     networks:
       - my-network
 
-  model_1:
-    build: ./model_1
-    command: python model_1.py
-    depends_on:
-      prep:
-        condition: service_completed_successfully
-    volumes:
-      - image-volume:/prepped
-      - image-volume:/output
-    networks:
-      - my-network
+  # model_1:
+  #   build: ./model_1
+  #   command: python model_1.py
+  #   depends_on:
+  #     prep:
+  #       condition: service_completed_successfully
+  #   volumes:
+  #     - image-volume:/prepped
+  #     - image-volume:/output
+  #   networks:
+  #     - my-network
 
 volumes:
   image-volume:

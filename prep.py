@@ -16,36 +16,39 @@ from scipy.ndimage import rotate
 
 from sklearn import preprocessing
 
-min_max_scaler = preprocessing.MinMaxScaler()
 
+# convert numpy image to nifti format
 def numpy2nifti(numpy_img):
     return nib.Nifti1Image(numpy_img, original_affine)
 
-
+# convert nifti image to numpy format
 def nifti2numpy(nifti_img):
     return nifti_img.get_fdata()
 
-
+# set the intensity of the image
 def max_intenzity(image):
     min_val = np.min(image)
     max_val = np.max(image)
     min_max_norm_img = ((image - min_val) / (max_val - min_val) * 255).astype(np.uint8)
     return min_max_norm_img
 
-
+# normalize and return in nifti format
 def normalize(image):
     min_val = np.min(image)
     max_val = np.max(image)
     norm_img = ((image - min_val) / (max_val - min_val))
     return numpy2nifti(norm_img)
-
+    
+# normalize and return numpy format
 def normalize_test(image):
     min_val = np.min(image)
     max_val = np.max(image)
     norm_img = ((image - min_val) / (max_val - min_val))
     return norm_img
 
-
+# resize the train and label images (256,256,10),
+#normalize only the train
+#return in nifti format
 def max_int_resize_and_normalize_no_label(numpy_img, label):
 
     resized_norm_data = skt.resize(max_intenzity(nifti2numpy(numpy_img)), (256,256,10), order=1, preserve_range=False,anti_aliasing=True)
@@ -55,6 +58,7 @@ def max_int_resize_and_normalize_no_label(numpy_img, label):
 
     return resized_norm_data, resized_norm_label
 
+# same function, but only an image without label
 def max_int_resize_and_normalize_test(numpy_img):
 
     resized_norm_data = skt.resize(max_intenzity(numpy_img), (256,256,10), order=1, preserve_range=False,anti_aliasing=True)
@@ -62,18 +66,7 @@ def max_int_resize_and_normalize_test(numpy_img):
 
     return resized_norm_data
 
-def max_int_resize_and_normalize(numpy_img):
-    resized_norm_data = skt.resize(
-        max_intenzity(nifti2numpy(numpy_img)),
-        (256, 256, 10),
-        order=1,
-        preserve_range=False,
-        anti_aliasing=True,
-    )
-    resized_norm_data = normalize(resized_norm_data)
-    return resized_norm_data
-
-
+# load the nifti files and put in blocks
 def load_nifti_files():
     for i in range(1, 101):
         for frame_num in range(1, 17):
@@ -115,50 +108,27 @@ def load_nifti_files():
 
     return
 
-
-def rotation_z_with_affine(image, rotation_degree=90):
-    rotation_radians = np.radians(rotation_degree)
-    rotation_affine = np.array(
-        [
-            [np.cos(rotation_radians), -np.sin(rotation_radians), 0, 0],
-            [np.sin(rotation_radians), np.cos(rotation_radians), 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1],
-        ]
-    )
-
-    affine_so_far = image.affine.dot(rotation_affine)
-    return nib.Nifti1Image(image, affine=affine_so_far)
-
-
+# rotate the image around z axis
 def rotation_z(nifti_img, rotation_degree):
     img = nifti_img.get_fdata()
     rotated_data = rotate(img, rotation_degree, (0, 1), reshape=False)
     return nib.Nifti1Image(rotated_data, original_affine)
 
-
+# add random noise to the image
 def smooth(nifti_img, fwhm):
     return nili.smooth_img(nifti_img, fwhm=fwhm)
 
-
-def mirror_y_with_affine(numpy_img):
-    return nib.Nifti1Image(numpy_img, np.eye(4))
-
-
+# mirroring around the y axis
 def mirror_y(nifti_img):
     mirrored_data = np.flip(nifti2numpy(nifti_img), axis=0)
     return nib.Nifti1Image(mirrored_data, original_affine)
-
-
-def mirror_x_with_affine(numpy_img):
-    matrix = np.diag([-1, 1, 1, 1])
-    return nib.Nifti1Image(numpy_img, matrix)
-
-
+    
+# mirroring around the x axis
 def mirror_x(nifti_img):
     mirrored_data = np.flip(nifti2numpy(nifti_img), axis=1)
     return nib.Nifti1Image(mirrored_data, original_affine)
 
+# transform the input image(jpg), return in numpy format
 def test_transform(image):
     img = max_int_resize_and_normalize_test(image)
     for i in range(1,img.shape[-1],2):
@@ -198,6 +168,7 @@ if __name__ == "__main__":
 
     np.random.seed(42)
 
+    # data augmentation
     random_numbers = np.random.randint(0, 200, size=25)
     for j in range(0, 25):
         i = random_numbers[j]
@@ -210,7 +181,7 @@ if __name__ == "__main__":
         augmented_gt_train.append(rotation_z(patient_vols_train_gt[i], 270))
         augmented_gt_train.append(mirror_y(patient_vols_train_gt[i]))
         augmented_gt_train.append(mirror_x(patient_vols_train_gt[i]))
-        augmented_gt_train.append(smooth(patient_vols_train[i], 2))
+        augmented_gt_train.append(smooth(patient_vols_train_gt[i], 2))
 
     random_numbers = np.random.randint(0, 100, size=10)
     for j in range(0, 10):
@@ -226,6 +197,7 @@ if __name__ == "__main__":
         augmented_gt_test.append(mirror_x(patient_vols_test_gt[i]))
         augmented_gt_test.append(smooth(patient_vols_test_gt[i], 2))
 
+    # convert shape from (256,256,10)-> (256,256,3)
     x_train = []
     for img in patient_vols_train:
         for i in range(1, img.shape[-1], 2):
@@ -308,6 +280,7 @@ if __name__ == "__main__":
     print("y_test shape:\t\t", y_test.shape)
     print("y_test_aug shape:\t", y_test_aug.shape)
 
+    # save the numpy files for the training
     np.savez_compressed("x_train.npz", x_train)
     np.savez_compressed("x_train_aug.npz", x_train_aug)
     np.savez_compressed("y_train.npz", y_train)

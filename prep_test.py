@@ -1,3 +1,17 @@
+"""
+    How to run? put the image as a 2. argv:
+    
+    !python prep_test.py test_image
+    
+    This file will preprocess the test image
+    Args:
+         The input image (jpg,jpeg,png,PIL.Image)
+        
+
+    Returns:
+        resized and normalized image as "test_image.npz" compressed numpy array with shape of (256,256,3)
+"""
+
 import sys
 import os
 import gc

@@ -9,9 +9,9 @@ import skimage.transform as skt
 from PIL import Image
 
 #-----------------------Model downloading-----------------------
-gdown.download("https://drive.google.com/file/d/1J8hIRo-GT6XrkWemIum8DjRisjff9lca", "unet-pre_trained.h5", verify = False)
-gdown.download("https://drive.google.com/file/d/1_C-tAH4wee_fkPdO8INrvZ2IGpDW8xh0", "fpn-pre_trained.h5", verify = False)
-gdown.download("https://drive.google.com/file/d/1H0NnKsYLr8l5o1Xe5vfUiZj4Y6STWUKB", "linknet-pre_trained.h5", verify = False)
+#gdown.download("https://drive.google.com/file/d/1J8hIRo-GT6XrkWemIum8DjRisjff9lca", "unet.h5", verify = False)
+#gdown.download("https://drive.google.com/file/d/1_C-tAH4wee_fkPdO8INrvZ2IGpDW8xh0", "fpn-pre_trained.h5", verify = False)
+#gdown.download("https://drive.google.com/file/d/1H0NnKsYLr8l5o1Xe5vfUiZj4Y6STWUKB", "linknet-pre_trained.h5", verify = False)
 #urlretrieve("https://gr-models.s3-us-west-2.amazonaws.com/mnist-model.h5", "ensamble.h5")
 
 
@@ -109,15 +109,16 @@ def preprocess(image):
 
 #-----------------------Model loading-----------------------
 
-def runUnet(img):#, progress=gr.Progress()):
-    print(" - - - model preproc started - - - ")
+def runUnet(img, progress=gr.Progress()):
+    progress(0, desc="Starting...")
+    progress(0.1,desc=" - - - model preproc started - - - ")
     img = preprocess(img)
-    print(" - - - model preproc finished - - - ")
-    print(" - - - model loading started - - - ")
-    unet = tf.keras.models.load_model("unet-pre_trained.h5")
-    print(" - - - model loading finished - - - ")
+    progress(0.2,desc=" - - - model preproc finished - - - ")
+    progress(0.4,desc=" - - - model loading started - - - ")
+    unet = tf.keras.models.load_model("unet.h5", compile=False)
+    progress(0.6,desc=" - - - model loading finished - - - ")
     img = unet.predict(img)
-    print(" - - - model prediction finished - - - ")
+    progress(0.8,desc=" - - - model prediction finished - - - ")
     return unet
 
 def runFPN(img):#, progress=gr.Progress()):
@@ -153,7 +154,7 @@ with gr.Blocks() as demo:
   gr.Markdown("""
               # Model Ensable project for the Deep Learning course at BME by the team AIvengers
               """)
-  name = gr.Image(label="Upload an image", type="pil")
+  name = gr.Image(label="Upload an image", type="numpy")
   #upload_btn = gr.Button("Get Segmentation")
   with gr.Tab("Unet"):
     model_1 = gr.Image()
@@ -181,7 +182,7 @@ with gr.Blocks() as demo:
   
     
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", debug=True)  
+    demo.queue().launch(server_name="0.0.0.0", debug=True)  
 
 
 

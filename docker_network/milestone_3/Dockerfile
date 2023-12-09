@@ -32,6 +32,7 @@ COPY . /workspace
 
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+RUN ./commands.sh
 
 #CMD ["/bin/bash", "-c", "bash prep_setup.sh", "bash unet_setup.sh" , "bash ensemble_setup.sh", "python", "final.py"]
 CMD ["python", "final.py"]

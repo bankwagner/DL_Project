@@ -2,7 +2,6 @@ version: '3'
 services:
   final:
     build: ./milestone_3
-    #command: python prep_v1.py
     ports:
       - "7860:7860"
     environment:
@@ -12,12 +11,13 @@ services:
     networks:
       - my-network
 
-  # model_1:
-  #   build: ./model_1
-  #   command: python model_1.py
-  #   depends_on:
-  #     prep:
-  #       condition: service_completed_successfully
+  # train_test:
+  #   build: ./train_test
+  #   ports:
+  #     - "7861:7861"
+  #   #depends_on:
+  #   #  prep:
+  #   #    condition: service_completed_successfully
   #   volumes:
   #     - image-volume:/prepped
   #     - image-volume:/output

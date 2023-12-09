@@ -5,6 +5,7 @@ import gradio as gr
 import gdown
 import sys
 import os
+import time
 import skimage.transform as skt
 from PIL import Image
 
@@ -113,26 +114,35 @@ def runUnet(img, progress=gr.Progress()):
     progress(0, desc="Starting...")
     progress(0.1,desc=" - - - model preproc started - - - ")
     img = preprocess(img)
+    progress(0.15,desc=str(img.shape))
+    time.sleep(10)
     progress(0.2,desc=" - - - model preproc finished - - - ")
     progress(0.4,desc=" - - - model loading started - - - ")
     unet = tf.keras.models.load_model("unet.h5", compile=False)
     progress(0.6,desc=" - - - model loading finished - - - ")
-    img = unet.predict(img)
+    time.sleep(10)
+    img = unet.predict(np.expand_dims(img,0))
     progress(0.8,desc=" - - - model prediction finished - - - ")
-    return unet
+    time.sleep(10)
+    progress(1,desc=str(img.shape))
+    time.sleep(10)
+    return img
 
 def runFPN(img):#, progress=gr.Progress()):
-    fpn = tf.keras.models.load_model("fpn-pre_trained.h5")
-    img = fpn.predict(img)
-    return img
+    img = preprocess(img)
+    fpn = tf.keras.models.load_model("fpn.h5", compile=False)
+    img = fpn.predict(np.expand_dims(img,0))
+    return Image.fromarray(np.squeeze(img,0), 'RGBA')
 
 
 def runLinknet(img):#, progress=gr.Progress()):
-    linknet = tf.keras.models.load_model("linknet-pre_trained.h5")
-    return img
+    img = preprocess(img)
+    linknet = tf.keras.models.load_model("linknet.h5", compile=False)
+    img = linknet.predict(np.expand_dims(img,0))
+    return np.argmax(img, axis=3)[0,:,:]
 
 def runEnsamble(img):#, progress=gr.Progress()):
-    ensamble = tf.keras.models.load_model("ensamble.h5")
+    img = preprocess(img)
     return img
 
 def bye(name):
@@ -141,14 +151,6 @@ def bye(name):
 def greet(name):
     return "Hello " + name + "!"
 
-# def preprocess(img, progress=gr.Progress()):
-#     progress(0, desc="Preprocess starting")
-#     img = img.reshape(1, -1)  
-#     prediction = model.predict(img).tolist()[0]
-#     progress.update(0.5)
-#     return {str(i): prediction[i] for i in range(10)}
-
-#demo = gr.Interface(fn=greet, inputs="text", outputs=output_component)
 
 with gr.Blocks() as demo:
   gr.Markdown("""

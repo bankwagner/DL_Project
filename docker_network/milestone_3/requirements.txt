@@ -1,2 +1,5 @@
 tensorflow==2.13.0
 gradio==3.44.2
+gdown==4.7.1
+Pillow==10.1.0
+scikit-image==0.22.0

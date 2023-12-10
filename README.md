@@ -15,11 +15,13 @@ In this project, you'll dive into the idea of using multiple models together, kn
  2. in the command line give the command: **docker-compose up**
  3. it should create 2 images and the pipeline currently runs the test dataset and gives back the evaluation for that into a different file
 
-#### Running the Training:
+#### Running the Ensemble:
  1. enter the folder milestone 3
  2. the **create_ensemble.ipynb** file contains the pipeline of how to create the ensemble models
- 3. the **models_train.py** contains the training for each model, train_models.ipynb contains the training process
- 4. to run each model simply follow the instructions within the notebooks
+ 3. to run the ensemble simply follow the instructions within the notebooks
+#### Other Files:
+ 5. the **models_train.py** contains the training for each model, train_models.ipynb contains the training process
+ 6. **prep.py** will preprocess the images and **ensemble.py** will create the ensemble models
 
 # Milestone-2:
 

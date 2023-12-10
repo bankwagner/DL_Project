@@ -171,9 +171,9 @@ with gr.Blocks() as demo:
   with gr.Tab("Unet"):
     with gr.Row():
       model_1 = gr.Image(height=256, width=256)
-      model_1_1 = gr.Image(height=256, width=256, label="Right Venticular Endocardium", show_label=True)
-      model_1_2 = gr.Image(height=256, width=256, label="Right Venticular Epicardium", show_label=True)
-      model_1_3 = gr.Image(height=256, width=256, label="Left Venticular Endocardium", show_label=True)
+      model_1_1 = gr.Image(height=256, width=256, label="Left Ventricle", show_label=True)
+      model_1_2 = gr.Image(height=256, width=256, label="Right Ventricle", show_label=True)
+      model_1_3 = gr.Image(height=256, width=256, label="Myocardium", show_label=True)
     model_1_btn = gr.Button("Model Unet Futtatása")
     gr.Markdown("""
     unet - ~290 MB
@@ -202,9 +202,9 @@ with gr.Blocks() as demo:
   with gr.Tab("FPN"):
     with gr.Row():
       model_2 = gr.Image(height=256, width=256)
-      model_2_1 = gr.Image(height=256, width=256, label="Right Venticular Endocardium", show_label=True)
-      model_2_2 = gr.Image(height=256, width=256, label="Right Venticular Epicardium", show_label=True)
-      model_2_3 = gr.Image(height=256, width=256, label="Left Venticular Endocardium", show_label=True)
+      model_2_1 = gr.Image(height=256, width=256, label="Left Ventricle", show_label=True)
+      model_2_2 = gr.Image(height=256, width=256, label="Right Ventricle", show_label=True)
+      model_2_3 = gr.Image(height=256, width=256, label="Myocardium", show_label=True)
     model_2_btn = gr.Button("Model FPN Futtatása")
     gr.Markdown("""
     linknet - ~250 MB
@@ -233,9 +233,9 @@ with gr.Blocks() as demo:
   with gr.Tab("LinkNet"):
     with gr.Row():
       model_3 = gr.Image(height=256, width=256)
-      model_3_1 = gr.Image(height=256, width=256, label="Right Venticular Endocardium", show_label=True)
-      model_3_2 = gr.Image(height=256, width=256, label="Right Venticular Epicardium", show_label=True)
-      model_3_3 = gr.Image(height=256, width=256, label="Left Venticular Endocardium", show_label=True)
+      model_3_1 = gr.Image(height=256, width=256, label="Left Ventricle", show_label=True)
+      model_3_2 = gr.Image(height=256, width=256, label="Right Ventricle", show_label=True)
+      model_3_3 = gr.Image(height=256, width=256, label="Myocardium", show_label=True)
     model_3_btn = gr.Button("Model Link Net Futtatása")
     gr.Markdown("""
     fpn - ~280 MB
@@ -264,9 +264,9 @@ with gr.Blocks() as demo:
   with gr.Tab("Ensamble"):
     with gr.Row():
       model_e = gr.Image(height=256, width=256)
-      model_e_1 = gr.Image(height=256, width=256, label="Right Venticular Endocardium", show_label=True)
-      model_e_2 = gr.Image(height=256, width=256, label="Right Venticular Epicardium", show_label=True)
-      model_e_3 = gr.Image(height=256, width=256, label="Left Venticular Endocardium", show_label=True)
+      model_e_1 = gr.Image(height=256, width=256, label="Left Ventricle", show_label=True)
+      model_e_2 = gr.Image(height=256, width=256, label="Right Ventricle", show_label=True)
+      model_e_3 = gr.Image(height=256, width=256, label="Myocardium", show_label=True)
     model_e_btn = gr.Button("Model Ensamble Futtatása")
     
   with gr.Accordion("Project description"):

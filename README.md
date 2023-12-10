@@ -17,7 +17,7 @@ In this project, you'll dive into the idea of using multiple models together, kn
 
 #### Running the Ensemble:
  1. enter the folder milestone 3
- 2. the **create_ensemble.ipynb** file contains the pipeline of how to create the ensemble models
+ 2. the **create_ensemble.ipynb** file can be used to create the ensemble of the trained models
  3. to run the ensemble simply follow the instructions within the notebooks
     
 #### Other Files:

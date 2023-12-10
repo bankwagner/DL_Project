@@ -21,7 +21,7 @@ In this project, you'll dive into the idea of using multiple models together, kn
  3. to run the ensemble simply follow the instructions within the notebooks
 #### Other Files:
  5. the **models_train.py** contains the training for each model, train_models.ipynb contains the training process
- 6. **prep.py** will preprocess the images and **ensemble.py** will create the ensemble models
+ 6. **prep.py** will preprocess the images and **ensemble.py** calculates the optimal weights for the models
 
 # Milestone-2:
 

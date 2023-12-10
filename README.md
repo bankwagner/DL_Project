@@ -13,7 +13,7 @@ In this project, you'll dive into the idea of using multiple models together, kn
 #### Running the Pipeline:
  1. enter the folder docker_network
  2. in the command line give the command: **docker-compose up**
- 3. it should create 2 images and the pipeline currently runs the test dataset and gives back the evaluation for that into a different file
+ 3. it should create 1 images and on the localhost:7860 will you reach the UI.
 
 #### Running the Ensemble:
  1. enter the folder milestone 3

@@ -1,0 +1,11 @@
+mappa		https://drive.google.com/drive/folders/1sUVvafYw33p5jLDMvh-tP8uYVaJm4Ot2
+ACDC.zip	https://drive.google.com/file/d/1qAUJtiPZfT3jm4V4qg-VRVucpZva-Qj_
+prep.py		https://drive.google.com/file/d/17qlna9cM-kI4B7XohwSHwPoD5jx0-Qlx
+unet.py		https://drive.google.com/file/d/1IdoIA_YLQ_Wmmjlt23XpvUNBKkQs4OJg
+linknet.py	https://drive.google.com/file/d/1JGF5ySYY9qbPTwVJnX5d126d5FIjMmeQ
+fpn.py		https://drive.google.com/file/d/1G59hS3z1hLUlTGpabZrbtsRFF71eKdm1
+unet.h5		https://drive.google.com/file/d/1J8hIRo-GT6XrkWemIum8DjRisjff9lca
+linknet.h5	https://drive.google.com/file/d/1H0NnKsYLr8l5o1Xe5vfUiZj4Y6STWUKB
+fpn.h5		https://drive.google.com/file/d/1_C-tAH4wee_fkPdO8INrvZ2IGpDW8xh0
+test		https://drive.google.com/file/d/1TYJCoKBLi3sSmCWWxQ2JyjL-KbN8daju
+ensemble	https://drive.google.com/file/d/12G28i0sargd8_WNaanq4fLgTxPEIGWBr

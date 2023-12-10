@@ -9,6 +9,17 @@ A BME Mélytanulás tárgyához kapcsolódó projekt feladat git oldala.
 ### Project description:
 
 In this project, you'll dive into the idea of using multiple models together, known as model ensembles, to make our deep-learning solutions more accurate. They are a reliable approach to improve the accuracy of a deep learning solution for the added cost of running multiple networks. Using ensembles is a trick that's widely used by the winners of AI competitions. The task of the students: explore approaches to model ensemble construction for semantic segmentation, select a dataset (preferentially cardiac MRI segmentation, but others also allowed), find an open-source segmentation solution as a baseline for the selected dataset, and test it. Train multiple models and construct an ensemble from them. Analyze the improvements, benefits, and added costs of using an ensemble.
+# Milestone-3:
+#### Running the Pipeline:
+ 1. enter the folder docker_network
+ 2. in the command line give the command: **docker-compose up**
+ 3. it should create 2 images and the pipeline currently runs the test dataset and gives back the evaluation for that into a different file
+
+#### Running the Training:
+ 1. enter the folder milestone 3
+ 2. the **X_model.ipynb** file contains the 4 models used for our ensemble
+ 3. the **X_files.zip** contains generated test results and the additional plots
+ 4. to run each model simply follow the instructions within the notebooks
 
 # Milestone-2:
 

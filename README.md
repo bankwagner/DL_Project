@@ -18,7 +18,7 @@ In this project, you'll dive into the idea of using multiple models together, kn
 #### Running the Training:
  1. enter the folder milestone 3
  2. the **create_ensemble.ipynb** file contains the models
- 3. the **models_train.py** contains the training 
+ 3. the **models_train.py** contains the training, train_models.ipynb contains the training process
  4. to run each model simply follow the instructions within the notebooks
 
 # Milestone-2:

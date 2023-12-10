@@ -12,7 +12,7 @@ In this project, you'll dive into the idea of using multiple models together, kn
 # Milestone-3:
 #### Running the Pipeline:
  1. enter the folder docker_network
- 2. in the command line give the command: **docker-compose up**
+ 2. while running docker desktop in the command line give the command: **docker-compose up**
  3. it should create 1 images and on the localhost:7860 will you reach the UI.
 
 #### Running the Ensemble:
